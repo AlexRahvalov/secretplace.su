@@ -897,3 +897,16 @@ server.listen(PORT, () => {
 
 // Запускаем сервер
 startServer(); 
+
+// Добавьте специальный обработчик для файлов в папке .well-known
+server.get('/.well-known/*', (req, res) => {
+  const filePath = path.join(__dirname, '../../client/public', req.path);
+  // Проверка существования файла
+  fs.stat(filePath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      return res.status(404).send('Not found');
+    }
+    // Отправка файла
+    res.sendFile(filePath);
+  });
+}); 
