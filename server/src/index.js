@@ -119,15 +119,19 @@ const router = {
   // Специальный файл для подтверждения домена в Telegram
   '/.well-known/telegram-domain-verification.html': async (req, res) => {
     try {
-      // Получаем имя бота из переменных окружения
-      const botUsername = process.env.TELEGRAM_BOT_USERNAME || '';
+      // Получаем токен верификации из переменных окружения
+      const verificationToken = process.env.TELEGRAM_DOMAIN_VERIFICATION_TOKEN || '';
+      
+      if (!verificationToken) {
+        console.warn('TELEGRAM_DOMAIN_VERIFICATION_TOKEN не найден в переменных окружения');
+      }
       
       // HTML содержимое файла верификации
       const content = `
         <html>
           <head>
             <title>Telegram Domain Verification</title>
-            <meta name="telegram:domain-verification" content="telegram-domain-verification">
+            <meta name="telegram:domain-verification" content="${verificationToken}">
           </head>
           <body>
             Telegram verification page

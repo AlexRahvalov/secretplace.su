@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход через Telegram - SecretPlace.su</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    .container {
+      background-color: #2d2d2d;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    h1 {
+      margin-top: 0;
+      color: #4c84ff;
+    }
+    
+    p {
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    
+    .login-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .message {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border-radius: 5px;
+      display: none;
+    }
+    
+    .success {
+      background-color: rgba(0, 128, 0, 0.2);
+      border: 1px solid green;
+    }
+    
+    .error {
+      background-color: rgba(255, 0, 0, 0.2);
+      border: 1px solid red;
+    }
+    
+    .btn-redirect {
+      background-color: #4c84ff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    
+    .btn-redirect:hover {
+      background-color: #3a6cd1;
+    }
+    
+    #telegram-widget-container {
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Вход через Telegram</h1>
+    <p>Для входа на сайт SecretPlace.su вы можете использовать свой аккаунт Telegram.</p>
+    
+    <div id="telegram-widget-container">
+      <!-- Telegram Login Widget будет вставлен сюда -->
+    </div>
+    
+    <div id="success-message" class="message success">
+      Вы успешно авторизовались! Перенаправление на сайт...
+    </div>
+    
+    <div id="error-message" class="message error">
+      Ошибка авторизации. Попробуйте снова или используйте обычный вход.
+    </div>
+    
+    <a href="/" class="btn-redirect">Вернуться на главную</a>
+  </div>
+  
+  <script>
+    // Получаем имя бота с сервера
+    fetch('/api/auth/telegram/info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.botUsername) {
+          initTelegramLoginWidget(data.botUsername);
+        } else {
+          showError('Не удалось загрузить Telegram виджет');
+        }
+      })
+      .catch(error => {
+        showError('Ошибка загрузки данных для Telegram виджета');
+      });
+    
+    // Инициализируем виджет Telegram
+    function initTelegramLoginWidget(botUsername) {
+      const container = document.getElementById('telegram-widget-container');
+      
+      // Создаем скрипт виджета
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://telegram.org/js/telegram-widget.js?22';
+      script.setAttribute('data-telegram-login', botUsername);
+      script.setAttribute('data-size', 'large');
+      script.setAttribute('data-radius', '8');
+      script.setAttribute('data-request-access', 'write');
+      script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+      
+      container.appendChild(script);
+    }
+    
+    // Функция авторизации через Telegram
+    function onTelegramAuth(user) {
+      if (!user || !user.id) {
+        showError('Ошибка при получении данных пользователя');
+        return;
+      }
+      
+      // Отправляем данные на сервер для авторизации
+      fetch('/api/auth/telegram/widget-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Успешная авторизация
+          localStorage.setItem('user', JSON.stringify({
+            session: data.session,
+            user: data.user
+          }));
+          
+          showSuccess();
+          
+          // Перенаправляем на главную страницу
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        } else if (data.telegramData) {
+          // Аккаунт не привязан, перенаправляем на страницу привязки
+          sessionStorage.setItem('telegramBindData', JSON.stringify(data.telegramData));
+          
+          // Показываем сообщение и перенаправляем
+          document.getElementById('error-message').innerText = 'Аккаунт Telegram не привязан. Перенаправление на страницу входа для привязки...';
+          document.getElementById('error-message').style.display = 'block';
+          
+          setTimeout(() => {
+            window.location.href = '/?bind=telegram';
+          }, 2000);
+        } else {
+          showError(data.message || 'Ошибка авторизации');
+        }
+      })
+      .catch(error => {
+        showError('Ошибка соединения с сервером');
+      });
+    }
+    
+    // Функция для отображения сообщения об успехе
+    function showSuccess() {
+      document.getElementById('success-message').style.display = 'block';
+      document.getElementById('error-message').style.display = 'none';
+    }
+    
+    // Функция для отображения сообщения об ошибке
+    function showError(message) {
+      const errorElement = document.getElementById('error-message');
+      errorElement.innerText = message;
+      errorElement.style.display = 'block';
+      document.getElementById('success-message').style.display = 'none';
+    }
+  </script>
+</body>
+</html> 

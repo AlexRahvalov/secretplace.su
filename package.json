@@ -1,6 +1,6 @@
 {
   "name": "secretplace.su",
-  "version": "0.0.3.4",
+  "version": "0.0.3.6",
   "description": "Сайт для Minecraft сервера SecretPlace.su",
   "main": "index.js",
   "scripts": {
