@@ -15,6 +15,7 @@ export default defineConfig({
     strictPort: true,
     open: true,
     host: true,
+    allowedHosts: ['secretplace.su'],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

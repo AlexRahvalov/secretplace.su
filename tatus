@@ -1,2 +1,5 @@
-[33md7d4bbc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Добавлен CHANGELOG.md с подробным описанием изменений
-[33m4d56aa5[m Initial commit: Создание проекта сайта для Minecraft сервера (v0.0.0.0)
+[33mcommit 558b385ea50449d4ba34b5e8778087ca63b5e955[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: AlexRahvalov <alex.rahvalov@example.com>
+Date:   Thu Mar 20 22:44:08 2025 +0300
+
+    Обновление до версии 0.0.3.0: Реализация системы авторизации и интеграция Telegram Login Widget

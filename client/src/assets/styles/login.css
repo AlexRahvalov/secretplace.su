@@ -1,0 +1,406 @@
+/* login.css - Стили для формы авторизации */
+
+/* Модальное окно */
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1500;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Форма авторизации */
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--color-surface);
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: var(--shadow-large);
+  border: 1px solid var(--color-border);
+  animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Заголовок формы */
+.login-title {
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Поля формы */
+.form-field {
+  margin-bottom: 15px;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(255, 64, 87, 0.2);
+}
+
+.form-field input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Кнопки формы */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.btn-login, .btn-cancel, .btn-logout {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-login {
+  background-color: var(--color-primary);
+  color: white;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.btn-login:hover {
+  background-color: #e0334a;
+}
+
+.btn-login:disabled {
+  background-color: #7c7c7c;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Сообщение об ошибке */
+.login-error {
+  color: #ff4057;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
+  min-height: 20px;
+}
+
+/* Профиль пользователя */
+.user-profile {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--color-surface);
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: var(--shadow-large);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.profile-title {
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  color: white;
+  font-weight: bold;
+}
+
+.user-data {
+  margin-bottom: 25px;
+}
+
+.user-displayname {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--color-text);
+  margin-bottom: 5px;
+}
+
+.user-username {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: 5px;
+}
+
+.btn-logout {
+  background-color: #333;
+  color: white;
+  width: 100%;
+  padding: 12px;
+}
+
+.btn-logout:hover {
+  background-color: #444;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .login-form, .user-profile {
+    max-width: 90%;
+    padding: 20px;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-login {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+/* Альтернативные методы авторизации */
+.alt-auth-methods {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+/* Контейнер для Telegram Login Widget */
+.telegram-login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  min-height: 50px;
+}
+
+/* Стили для информации об авторизации */
+.auth-info {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: 15px;
+  background-color: rgba(41, 169, 235, 0.1);
+  padding: 8px;
+  border-radius: 5px;
+}
+
+/* Кнопка авторизации через Telegram */
+.btn-telegram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #29A9EB;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.btn-telegram:hover {
+  background-color: #0088cc;
+  transform: scale(1.05);
+}
+
+.telegram-icon {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.3s ease;
+  filter: brightness(0) invert(1);
+}
+
+.btn-telegram:hover .telegram-icon {
+  transform: scale(1.1);
+}
+
+/* Разделитель "или" */
+.auth-divider {
+  position: relative;
+  text-align: center;
+  margin: 15px 0;
+  color: var(--color-text-secondary);
+}
+
+.auth-divider::before, 
+.auth-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: var(--color-border);
+}
+
+.auth-divider::before {
+  left: 0;
+}
+
+.auth-divider::after {
+  right: 0;
+}
+
+.auth-divider span {
+  display: inline-block;
+  background-color: var(--color-surface);
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Указатель типа авторизации в профиле */
+.user-auth-type {
+  font-size: 14px;
+  color: #0088cc;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-auth-type::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url('../images/telegram-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-right: 5px;
+  filter: brightness(0) invert(1);
+}
+
+/* Кнопки профиля */
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+/* Кнопка привязки Telegram */
+.btn-bind-telegram {
+  background-color: #29A9EB;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-bind-telegram:hover {
+  background-color: #0088cc;
+}
+
+.telegram-icon-small {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  filter: brightness(0) invert(1);
+}
+
+/* Контейнер для привязки Telegram */
+.bind-telegram-container {
+  background-color: #292a33;
+  border: 1px solid #3f4152;
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.bind-telegram-title {
+  font-weight: bold;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.bind-telegram-description {
+  color: var(--color-text-secondary);
+  margin-bottom: 15px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.bind-success {
+  color: #4caf50;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 5px;
+}
+
+.bind-error {
+  color: #ff4057;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: rgba(255, 64, 87, 0.1);
+  border-radius: 5px;
+} 

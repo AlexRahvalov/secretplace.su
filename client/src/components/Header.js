@@ -1,5 +1,7 @@
 // Header.js - Компонент шапки сайта
 import { createElement } from '../utils/dom.js';
+import LoginForm from './LoginForm.js';
+import { isAuthenticated, getCurrentUser } from '../services/authService.js';
 
 /**
  * Создает компонент шапки сайта
@@ -45,12 +47,18 @@ export default function Header() {
     ])
   ]);
   
+  // Проверяем, авторизован ли пользователь
+  const user = isAuthenticated() ? getCurrentUser() : null;
+  
+  // Определяем текст кнопки кабинета в зависимости от статуса авторизации
+  const cabinetText = user ? `${user.displayName}` : 'Кабинет →';
+  
   // Кнопки действий в шапке
   const headerButtons = createElement('div', { className: 'header-buttons' }, [
-    createElement('a', { 
-      href: '/profile',
-      className: 'header-btn header-btn-dark'
-    }, 'Кабинет →'),
+    createElement('button', { 
+      className: 'header-btn header-btn-dark',
+      onClick: openLoginForm
+    }, cabinetText),
     createElement('a', { 
       href: '/play',
       className: 'header-btn header-btn-primary'
@@ -68,6 +76,10 @@ export default function Header() {
       headerButtons
     ])
   ]);
+  
+  // Контейнер для модального окна авторизации
+  const modalContainer = document.createElement('div');
+  modalContainer.id = 'login-modal-container';
   
   // Инициализация переменных для отслеживания скролла
   let lastScrollY = window.scrollY;
@@ -96,6 +108,27 @@ export default function Header() {
       ticking = true;
     }
   });
+  
+  // Функция для открытия формы авторизации
+  function openLoginForm(event) {
+    event.preventDefault();
+    
+    // Удаляем предыдущую форму, если она существует
+    if (document.querySelector('.auth-modal')) {
+      document.querySelector('.auth-modal').remove();
+    }
+    
+    // Создаем и добавляем форму авторизации
+    const loginForm = LoginForm({
+      onClose: () => {
+        if (document.querySelector('.auth-modal')) {
+          document.querySelector('.auth-modal').remove();
+        }
+      }
+    });
+    
+    document.body.appendChild(loginForm);
+  }
   
   return header;
 } 

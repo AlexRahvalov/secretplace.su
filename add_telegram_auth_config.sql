@@ -1,0 +1,1 @@
+INSERT INTO sp_config (name, value, description) VALUES ('auth_enable_telegram', 'true', 'Включить авторизацию через Telegram') ON DUPLICATE KEY UPDATE value = 'true', description = 'Включить авторизацию через Telegram';
