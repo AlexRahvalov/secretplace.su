@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "0.0.1.0",
+  "version": "0.0.2.0",
   "description": "Серверная часть сайта для Minecraft сервера SecretPlace.su",
   "main": "src/index.js",
   "scripts": {
@@ -15,5 +15,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/AlexRahvalov/secretplace.su"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mariadb": "^3.4.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
