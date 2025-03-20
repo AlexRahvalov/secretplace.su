@@ -1,0 +1,27 @@
+{
+  "name": "secretplace.su",
+  "version": "0.0.0.0",
+  "description": "Сайт для Minecraft сервера SecretPlace.su",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/secretplace.su"
+  },
+  "keywords": [
+    "minecraft",
+    "server",
+    "website"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
