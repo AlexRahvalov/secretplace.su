@@ -33,3 +33,10 @@ yarn-error.log*
 *.swp
 *.swo
 .DS_Store
+
+add_telegram_auth_config.sql
+add_telegram_config.sql
+db_dump.sql
+easyauth_telegram.sql
+tatus
+ master

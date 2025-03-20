@@ -1,5 +1,0 @@
-[33mcommit 558b385ea50449d4ba34b5e8778087ca63b5e955[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
-Author: AlexRahvalov <alex.rahvalov@example.com>
-Date:   Thu Mar 20 22:44:08 2025 +0300
-
-    Обновление до версии 0.0.3.0: Реализация системы авторизации и интеграция Telegram Login Widget
