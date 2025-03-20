@@ -78,17 +78,31 @@ export async function loginWithTelegramWidget(userData) {
       body: JSON.stringify(userData)
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка авторизации через Telegram Widget');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Ошибка авторизации через Telegram Widget');
     }
     
-    const user = await response.json();
-    
-    // Сохраняем данные пользователя в localStorage
-    localStorage.setItem('user', JSON.stringify(user));
-    
-    return user;
+    if (data.success) {
+      // Сохраняем данные пользователя в localStorage
+      localStorage.setItem('user', JSON.stringify({
+        session: data.session,
+        user: data.user
+      }));
+      
+      return {
+        session: data.session,
+        user: data.user
+      };
+    } else {
+      // Возвращаем данные для привязки аккаунта
+      return {
+        needsBinding: true,
+        telegramData: data.telegramData,
+        message: data.message
+      };
+    }
   } catch (error) {
     throw error;
   }
@@ -130,7 +144,7 @@ export async function generateTelegramLinkCode(username, password) {
  */
 export async function bindTelegramWithWidget(telegramData, username, password) {
   try {
-    const response = await fetch('/api/auth/telegram/bind-widget', {
+    const response = await fetch('/api/auth/telegram/widget-link', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -138,12 +152,13 @@ export async function bindTelegramWithWidget(telegramData, username, password) {
       body: JSON.stringify({ telegramData, username, password })
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Не удалось привязать Telegram аккаунт');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Не удалось привязать Telegram аккаунт');
     }
     
-    return await response.json();
+    return data;
   } catch (error) {
     throw error;
   }

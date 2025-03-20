@@ -85,44 +85,24 @@ export default function LoginForm({ onClose }) {
     // Очищаем контейнер
     container.innerHTML = '';
     
-    // Создаем IFrame для виджета
-    const widgetFrame = document.createElement('iframe');
-    widgetFrame.id = 'telegram-login-widget-iframe';
-    widgetFrame.frameBorder = '0';
-    widgetFrame.scrolling = 'no';
-    widgetFrame.width = '100%';
-    widgetFrame.height = '54px';
-    widgetFrame.style.overflow = 'hidden';
+    // Создаем скрипт для виджета
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.setAttribute('data-telegram-login', botName);
+    script.setAttribute('data-size', 'large');
+    script.setAttribute('data-radius', '8');
+    script.setAttribute('data-request-access', 'write');
+    script.setAttribute('data-userpic', 'false');
+    script.setAttribute('data-onauth', 'window.onTelegramAuth(user)');
     
-    // Формируем URL для виджета
-    const widgetUrl = `https://oauth.telegram.org/embed/${botName}?origin=${encodeURIComponent(window.location.origin)}&return_to=${encodeURIComponent(window.location.origin)}&size=large&radius=8&request_access=write&lang=ru`;
+    // Добавляем скрипт в контейнер
+    container.appendChild(script);
     
-    // Устанавливаем источник для IFrame
-    widgetFrame.src = widgetUrl;
-    
-    // Добавляем IFrame в контейнер
-    container.appendChild(widgetFrame);
-    
-    // Слушаем сообщения от виджета
-    window.addEventListener('message', function(event) {
-      // Проверяем, что сообщение от разрешенного источника
-      if (event.origin === 'https://oauth.telegram.org') {
-        try {
-          // Проверяем, что это сообщение с данными пользователя
-          if (event.data && typeof event.data === 'string' && event.data.startsWith('{')) {
-            const user = JSON.parse(event.data);
-            
-            // Проверяем, что это объект пользователя от Telegram
-            if (user && user.id && user.first_name) {
-              // Вызываем функцию авторизации
-              handleTelegramAuth(user);
-            }
-          }
-        } catch (error) {
-          // Обрабатываем ошибки разбора JSON
-        }
-      }
-    });
+    // Создаем глобальную функцию обратного вызова
+    window.onTelegramAuth = function(user) {
+      handleTelegramAuth(user);
+    };
   }
   
   // Функция создания контейнера для Telegram Login Widget
@@ -147,20 +127,23 @@ export default function LoginForm({ onClose }) {
     
     try {
       // Пытаемся авторизоваться через Telegram
-      const userData = await loginWithTelegramWidget(user);
+      const result = await loginWithTelegramWidget(user);
       
-      // Показываем профиль пользователя
-      showUserProfile(userData);
-    } catch (error) {
-      // Если пользователь не найден, предлагаем привязать аккаунт
-      if (error.message.includes('не найден')) {
+      // Если пользователь успешно авторизовался
+      if (result.user && result.session) {
+        // Показываем профиль пользователя
+        showUserProfile(result);
+      } else if (result.needsBinding) {
+        // Если требуется привязка аккаунта, сохраняем данные Telegram
+        sessionStorage.setItem('telegramBindData', JSON.stringify(result.telegramData));
+        
+        // Показываем сообщение о необходимости привязки
         errorContainer.innerHTML = 
           'Ваш Telegram аккаунт не привязан к учетной записи.<br>' +
-          'Чтобы привязать аккаунт, войдите с помощью логина и пароля,<br>' +
-          'затем нажмите "Привязать Telegram" в профиле.';
-      } else {
-        errorContainer.textContent = error.message || 'Ошибка авторизации через Telegram';
+          'Войдите, используя логин и пароль, затем нажмите кнопку "Привязать Telegram".';
       }
+    } catch (error) {
+      errorContainer.textContent = error.message || 'Ошибка авторизации через Telegram';
     }
   }
   
@@ -258,211 +241,107 @@ export default function LoginForm({ onClose }) {
     }
   });
   
-  // Функция для отображения профиля пользователя
-  function showUserProfile(user) {
+  // Показывает профиль пользователя после авторизации
+  function showUserProfile(userData) {
     // Скрываем форму
     form.style.display = 'none';
     
-    // Очищаем содержимое профиля
+    // Очищаем профиль
     userProfile.innerHTML = '';
+    userProfile.style.display = 'block';
     
     // Заголовок профиля
-    const profileTitle = createElement('h2', { className: 'profile-title' }, 'Мой профиль');
+    const profileTitle = createElement('h2', { className: 'profile-title' }, 'Профиль пользователя');
     
-    // Аватар пользователя
-    const avatar = createElement('div', { className: 'user-avatar' }, user.displayName.charAt(0).toUpperCase());
-    
-    // Данные пользователя
-    const userData = createElement('div', { className: 'user-data' }, [
-      createElement('div', { className: 'user-displayname' }, user.displayName),
-      createElement('div', { className: 'user-username' }, `@${user.username || 'пользователь'}`)
+    // Имя пользователя
+    const username = createElement('p', { className: 'profile-username' }, [
+      createElement('strong', {}, 'Имя пользователя: '),
+      createElement('span', {}, userData.user.username)
     ]);
     
-    // Если пользователь авторизован через Telegram, показываем это
-    if (user.telegramId || user.authType === 'telegram') {
-      userData.appendChild(
-        createElement('div', { className: 'user-auth-type' }, 'Авторизация через Telegram')
-      );
-    }
+    // UUID пользователя
+    const uuid = createElement('p', { className: 'profile-uuid' }, [
+      createElement('strong', {}, 'UUID: '),
+      createElement('span', {}, userData.user.uuid)
+    ]);
     
-    // Контейнер для кнопок действий
-    const profileActions = createElement('div', { className: 'profile-actions' });
+    // Информация о сессии
+    const session = createElement('p', { className: 'profile-session' }, [
+      createElement('strong', {}, 'Сессия до: '),
+      createElement('span', {}, new Date(userData.session.expiration).toLocaleString())
+    ]);
     
     // Кнопка выхода
     const logoutButton = createElement('button', { 
       className: 'btn-logout',
-      onClick: () => {
-        logout();
-        onClose();
-      }
+      onClick: handleLogout
     }, 'Выйти');
     
-    profileActions.appendChild(logoutButton);
+    // Кнопка привязки Telegram (если есть данные для привязки)
+    let bindTelegramButton = null;
+    const telegramBindData = sessionStorage.getItem('telegramBindData');
     
-    // Добавляем кнопку привязки Telegram, если пользователь не авторизован через Telegram
-    if (!user.telegramId && user.authType !== 'telegram') {
-      const bindTelegramButton = createElement('button', {
+    if (telegramBindData) {
+      bindTelegramButton = createElement('button', { 
         className: 'btn-bind-telegram',
         onClick: handleBindTelegram
-      }, [
-        createElement('img', {
-          src: '../assets/images/telegram-icon.svg',
-          alt: 'Telegram',
-          className: 'telegram-icon-small'
-        }),
-        createElement('span', {}, 'Привязать Telegram')
-      ]);
-      
-      profileActions.appendChild(bindTelegramButton);
+      }, 'Привязать Telegram');
     }
     
     // Добавляем элементы в профиль
     userProfile.appendChild(profileTitle);
-    userProfile.appendChild(avatar);
-    userProfile.appendChild(userData);
-    userProfile.appendChild(profileActions);
+    userProfile.appendChild(username);
+    userProfile.appendChild(uuid);
+    userProfile.appendChild(session);
     
-    // Показываем профиль
-    userProfile.style.display = 'block';
+    if (bindTelegramButton) {
+      userProfile.appendChild(bindTelegramButton);
+    }
+    
+    userProfile.appendChild(logoutButton);
   }
   
   // Обработчик привязки Telegram
   async function handleBindTelegram() {
-    const user = getCurrentUser();
-    if (!user) return;
-    
-    // Создаем контейнер для привязки Telegram
-    const bindContainer = createElement('div', { className: 'bind-telegram-container' });
-    
-    // Заголовок
-    bindContainer.appendChild(
-      createElement('div', { className: 'bind-telegram-title' }, 'Привязка Telegram аккаунта')
-    );
-    
-    // Описание
-    bindContainer.appendChild(
-      createElement('div', { className: 'bind-telegram-description' }, 
-        'Для привязки Telegram аккаунта к вашему профилю, нажмите на кнопку ниже и авторизуйтесь в Telegram.'
-      )
-    );
-    
-    // Запрашиваем подтверждение пароля
-    const password = prompt('Введите пароль для подтверждения привязки');
-    if (!password) return;
-    
-    // Создаем контейнер для виджета
-    const widgetContainer = createElement('div', {
-      id: 'telegram-bind-container',
-      className: 'telegram-login-container'
-    });
-    
-    bindContainer.appendChild(widgetContainer);
-    
-    // Кнопка закрытия
-    const closeButton = createElement('button', {
-      className: 'btn-close-bind',
-      onClick: () => bindContainer.remove()
-    }, 'Закрыть');
-    
-    bindContainer.appendChild(closeButton);
-    
-    // Добавляем контейнер привязки в профиль
-    userProfile.appendChild(bindContainer);
-    
-    // Получаем данные о боте из API
     try {
-      const response = await fetch('/api/auth/telegram/info');
-      const data = await response.json();
+      // Получаем данные Telegram из сессии
+      const telegramBindDataStr = sessionStorage.getItem('telegramBindData');
+      if (!telegramBindDataStr) {
+        alert('Нет данных для привязки Telegram аккаунта');
+        return;
+      }
       
-      if (data.success && data.botUsername) {
-        // Сохраняем данные для привязки
-        const username = user.username;
-        const userPassword = password;
+      // Парсим данные
+      const telegramData = JSON.parse(telegramBindDataStr);
+      
+      // Получаем текущего пользователя
+      const currentUser = getCurrentUser();
+      if (!currentUser || !currentUser.user || !currentUser.user.username) {
+        alert('Необходимо войти в систему');
+        return;
+      }
+      
+      // Запрашиваем пароль
+      const password = prompt('Введите ваш пароль для подтверждения привязки Telegram:');
+      if (!password) return;
+      
+      // Привязываем аккаунт
+      const result = await bindTelegramWithWidget(telegramData, currentUser.user.username, password);
+      
+      if (result && result.success) {
+        // Очищаем данные привязки
+        sessionStorage.removeItem('telegramBindData');
         
-        // Создаем iframe для виджета
-        const widgetFrame = document.createElement('iframe');
-        widgetFrame.id = 'telegram-bind-widget-iframe';
-        widgetFrame.frameBorder = '0';
-        widgetFrame.scrolling = 'no';
-        widgetFrame.width = '100%';
-        widgetFrame.height = '54px';
-        widgetFrame.style.overflow = 'hidden';
+        // Успешно привязали
+        alert(`Telegram аккаунт успешно привязан к ${result.username}`);
         
-        // Формируем URL для виджета
-        const widgetUrl = `https://oauth.telegram.org/embed/${data.botUsername}?origin=${encodeURIComponent(window.location.origin)}&return_to=${encodeURIComponent(window.location.origin)}&size=large&radius=8&request_access=write&lang=ru`;
-        
-        // Устанавливаем источник для IFrame
-        widgetFrame.src = widgetUrl;
-        
-        // Очищаем контейнер
-        widgetContainer.innerHTML = '';
-        
-        // Добавляем IFrame в контейнер
-        widgetContainer.appendChild(widgetFrame);
-        
-        // Обработчик сообщений от iframe
-        const messageHandler = async function(event) {
-          if (event.origin === 'https://oauth.telegram.org') {
-            try {
-              if (event.data && typeof event.data === 'string' && event.data.startsWith('{')) {
-                const telegramUser = JSON.parse(event.data);
-                
-                // Проверяем, что это объект пользователя от Telegram
-                if (telegramUser && telegramUser.id && telegramUser.first_name) {
-                  // Отключаем обработчик сообщений
-                  window.removeEventListener('message', messageHandler);
-                  
-                  try {
-                    // Привязываем Telegram к аккаунту
-                    const result = await bindTelegramWithWidget(telegramUser, username, userPassword);
-                    
-                    if (result.success) {
-                      // Обновляем информацию о пользователе
-                      const updatedUser = {
-                        ...user,
-                        telegramId: telegramUser.id,
-                        authType: 'telegram'
-                      };
-                      
-                      // Сохраняем обновленные данные
-                      localStorage.setItem('user', JSON.stringify(updatedUser));
-                      
-                      // Обновляем профиль
-                      bindContainer.innerHTML = '<div class="bind-success">✅ Telegram аккаунт успешно привязан!</div>';
-                      
-                      // Добавляем кнопку закрытия
-                      bindContainer.appendChild(closeButton);
-                      
-                      // Обновляем отображение после небольшой задержки
-                      setTimeout(() => {
-                        bindContainer.remove();
-                        showUserProfile(updatedUser);
-                      }, 2000);
-                    } else {
-                      bindContainer.innerHTML = `<div class="bind-error">❌ ${result.error || 'Ошибка привязки'}</div>`;
-                      bindContainer.appendChild(closeButton);
-                    }
-                  } catch (error) {
-                    bindContainer.innerHTML = `<div class="bind-error">❌ ${error.message || 'Ошибка привязки'}</div>`;
-                    bindContainer.appendChild(closeButton);
-                  }
-                }
-              }
-            } catch (error) {
-              // Ошибка обработки данных
-            }
-          }
-        };
-        
-        // Добавляем обработчик сообщений
-        window.addEventListener('message', messageHandler);
+        // Перезагружаем страницу
+        window.location.reload();
       } else {
-        bindContainer.innerHTML = '<div class="bind-error">❌ Не удалось получить информацию о Telegram боте</div>';
-        bindContainer.appendChild(closeButton);
+        alert('Не удалось привязать Telegram аккаунт');
       }
     } catch (error) {
-      bindContainer.innerHTML = '<div class="bind-error">❌ Ошибка загрузки Telegram виджета</div>';
-      bindContainer.appendChild(closeButton);
+      alert(error.message || 'Ошибка при привязке Telegram аккаунта');
     }
   }
   

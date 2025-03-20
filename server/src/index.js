@@ -59,6 +59,47 @@ function verifyTelegramHash(data) {
   return data.hash === computedHash;
 }
 
+// Функция для проверки данных аутентификации Telegram Login Widget
+const verifyTelegramAuth = (telegramData) => {
+  try {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      console.error('TELEGRAM_BOT_TOKEN не найден в переменных окружения');
+      return false;
+    }
+
+    // Создаем строку для проверки, отсортировав все поля в алфавитном порядке
+    const allowedFields = ['id', 'first_name', 'last_name', 'username', 'photo_url', 'auth_date'];
+    const checkString = Object.keys(telegramData)
+      .filter(key => allowedFields.includes(key))
+      .sort()
+      .map(key => `${key}=${telegramData[key]}`)
+      .join('\n');
+
+    // Вычисляем секретный ключ (SHA256 от токена бота)
+    const secretKey = crypto.createHash('sha256').update(botToken).digest();
+    
+    // Вычисляем HMAC-SHA256 хеш от строки проверки
+    const calculatedHash = crypto
+      .createHmac('sha256', secretKey)
+      .update(checkString)
+      .digest('hex');
+
+    // Проверяем хеш
+    const isValid = calculatedHash === telegramData.hash;
+    
+    // Проверяем, не устарела ли авторизация (не более 24 часов)
+    const authTime = parseInt(telegramData.auth_date);
+    const currentTime = Math.floor(Date.now() / 1000);
+    const isNotExpired = (currentTime - authTime) < 86400; // 24 часа
+    
+    return isValid && isNotExpired;
+  } catch (error) {
+    console.error('Ошибка при проверке аутентификации Telegram:', error);
+    return false;
+  }
+};
+
 // Маршрутизация для API
 const router = {
   // Получить версию приложения
@@ -664,58 +705,78 @@ const router = {
   // Авторизация через Telegram Login Widget
   '/api/auth/telegram/widget-login': async (req, res) => {
     try {
-      // Проверяем, что это POST запрос
-      if (req.method !== 'POST') {
-        return sendError(res, 'Метод не поддерживается', 405);
+      const telegramData = req.body;
+      console.log('Получены данные Telegram Login Widget:', telegramData);
+
+      if (!telegramData || !telegramData.id || !telegramData.hash) {
+        return res.status(400).json({ success: false, message: 'Неверные данные аутентификации Telegram' });
       }
+
+      // Проверяем подлинность данных
+      const isValid = verifyTelegramAuth(telegramData);
+      if (!isValid) {
+        return res.status(401).json({ success: false, message: 'Недействительные данные аутентификации Telegram' });
+      }
+
+      // Проверяем, есть ли пользователь с таким Telegram ID в базе данных
+      const telegramId = telegramData.id.toString();
+      const authManager = new AuthManager(db);
+      const telegramAdapter = authManager.getAdapterByName('TelegramAuth');
       
-      // Получаем данные из запроса
-      let body = '';
+      if (!telegramAdapter) {
+        return res.status(500).json({ success: false, message: 'Адаптер Telegram не найден' });
+      }
+
+      // Пытаемся аутентифицировать пользователя по Telegram ID
+      const userData = await telegramAdapter.authenticateByTelegramId(telegramId);
       
-      req.on('data', chunk => {
-        body += chunk.toString();
-      });
-      
-      req.on('end', async () => {
-        try {
-          // Парсим JSON с данными от Telegram виджета
-          const telegramUser = JSON.parse(body);
-          
-          // Проверяем наличие обязательных полей
-          if (!telegramUser || !telegramUser.id || !telegramUser.first_name || !telegramUser.auth_date) {
-            return sendError(res, 'Некорректные данные от Telegram виджета', 400);
+      if (userData && userData.success) {
+        // Пользователь найден, создаем сессию
+        const sessionId = generateSessionId();
+        const sessionExpiration = new Date();
+        sessionExpiration.setDate(sessionExpiration.getDate() + 7); // Сессия на 7 дней
+        
+        const session = {
+          id: sessionId,
+          userId: userData.user.id,
+          uuid: userData.user.uuid,
+          username: userData.user.username,
+          expiration: sessionExpiration,
+          adapter: 'TelegramAuth'
+        };
+        
+        sessions[sessionId] = session;
+        
+        return res.json({
+          success: true,
+          message: 'Успешная аутентификация через Telegram',
+          session: { 
+            id: sessionId,
+            username: userData.user.username,
+            expiration: sessionExpiration.toISOString()
+          },
+          user: {
+            uuid: userData.user.uuid,
+            username: userData.user.username,
+            isOperator: userData.user.isOperator || false
           }
-          
-          // В продакшене раскомментировать для проверки подписи
-          /*
-          // Проверяем подпись данных
-          if (!verifyTelegramHash(telegramUser)) {
-            return sendError(res, 'Недействительная подпись данных', 403);
+        });
+      } else {
+        // Пользователь не привязан, возвращаем данные для регистрации/привязки
+        return res.json({
+          success: false,
+          message: 'Аккаунт Telegram не привязан к учетной записи',
+          telegramData: {
+            id: telegramData.id,
+            username: telegramData.username,
+            first_name: telegramData.first_name,
+            last_name: telegramData.last_name
           }
-          */
-          
-          // Пытаемся найти пользователя с таким Telegram ID
-          const telegramAdapter = authManager.getAdapterByName('TelegramAuth');
-          
-          if (!telegramAdapter) {
-            return sendError(res, 'Авторизация через Telegram недоступна', 500);
-          }
-          
-          // Получаем пользователя по Telegram ID
-          const user = await telegramAdapter.authenticateByTelegramId(telegramUser.id);
-          
-          if (!user) {
-            return sendError(res, 'Пользователь с таким Telegram ID не найден', 404);
-          }
-          
-          // Возвращаем данные пользователя
-          sendJson(res, user);
-        } catch (error) {
-          sendError(res, 'Ошибка обработки данных', 400);
-        }
-      });
+        });
+      }
     } catch (error) {
-      sendError(res, 'Ошибка авторизации через Telegram', 500);
+      console.error('Ошибка при авторизации через Telegram Widget:', error);
+      res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
     }
   },
   
@@ -897,16 +958,3 @@ server.listen(PORT, () => {
 
 // Запускаем сервер
 startServer(); 
-
-// Добавьте специальный обработчик для файлов в папке .well-known
-server.get('/.well-known/*', (req, res) => {
-  const filePath = path.join(__dirname, '../../client/public', req.path);
-  // Проверка существования файла
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      return res.status(404).send('Not found');
-    }
-    // Отправка файла
-    res.sendFile(filePath);
-  });
-}); 
