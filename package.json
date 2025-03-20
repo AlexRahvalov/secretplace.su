@@ -20,6 +20,9 @@
     "website"
   ],
   "author": "AlexRahvalov",
+  "contributors": [
+    "Claude AI (Anthropic)"
+  ],
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
