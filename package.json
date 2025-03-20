@@ -1,12 +1,13 @@
 {
   "name": "secretplace.su",
-  "version": "0.0.0.0",
+  "version": "0.0.1.0",
   "description": "Сайт для Minecraft сервера SecretPlace.su",
   "main": "index.js",
   "scripts": {
     "client": "cd client && npm run dev",
     "server": "cd server && npm run dev",
     "start": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "npm run start",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

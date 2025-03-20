@@ -7,10 +7,17 @@ import { createElement } from '../utils/dom.js';
  */
 export default function HomePage() {
   // Создаем элемент героя (верхний блок)
-  const hero = createElement('section', { className: 'hero-section' }, [
+  const hero = createElement('section', { 
+    className: 'hero-section',
+    style: {
+      backgroundImage: 'url("/src/assets/images/background.jpg")'
+    }
+  }, [
+    createElement('div', { className: 'hero-overlay' }),
     createElement('div', { className: 'hero-content' }, [
-      createElement('h1', { className: 'hero-title' }, 'Добро пожаловать на SecretPlace.su'),
-      createElement('p', { className: 'hero-subtitle' }, 'Уютный сервер Minecraft с дружелюбным сообществом'),
+      createElement('h1', { className: 'hero-title' }, 'ТАЙНОЕ'),
+      createElement('h2', { className: 'hero-subtitle' }, 'МЕСТЕЧКО!'),
+      createElement('p', { className: 'hero-description' }, 'Уютный сервер Minecraft с дружелюбным сообществом'),
       createElement('div', { className: 'hero-actions' }, [
         createElement('button', { className: 'btn btn-primary' }, 'Начать играть'),
         createElement('a', { href: '/about', className: 'btn btn-secondary' }, 'Узнать больше')

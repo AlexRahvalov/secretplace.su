@@ -10,65 +10,92 @@ export default function Header() {
   const logo = createElement('a', 
     { 
       href: '/', 
-      className: 'logo' 
+      className: 'logo'
     }, 
-    'SecretPlace.su'
+    [
+      createElement('img', { 
+        src: '/src/assets/images/logo.svg', 
+        alt: 'Логотип'
+      }),
+      'SecretPlace.su'
+    ]
   );
   
   // Создаем навигационное меню
   const nav = createElement('nav', { className: 'main-nav' }, [
     createElement('ul', { className: 'nav-list' }, [
       createElement('li', { className: 'nav-item' }, 
-        createElement('a', { href: '/', className: 'nav-link' }, 'Главная')
+        createElement('a', { 
+          href: '/', 
+          className: 'nav-link'
+        }, 'Главная')
       ),
       createElement('li', { className: 'nav-item' }, 
-        createElement('a', { href: '/about', className: 'nav-link' }, 'О сервере')
+        createElement('a', { 
+          href: '/shop', 
+          className: 'nav-link'
+        }, 'Магазин')
       ),
       createElement('li', { className: 'nav-item' }, 
-        createElement('a', { href: '/rules', className: 'nav-link' }, 'Правила')
-      ),
-      createElement('li', { className: 'nav-item' }, 
-        createElement('a', { href: '/donate', className: 'nav-link' }, 'Поддержать')
+        createElement('a', { 
+          href: '/forum', 
+          className: 'nav-link'
+        }, 'Форум')
       )
     ])
   ]);
   
-  // Кнопка для мобильной навигации
-  const mobileNavButton = createElement('button', 
-    { 
-      className: 'mobile-nav-toggle',
-      type: 'button',
-      ariaLabel: 'Открыть меню',
-      onClick: () => document.body.classList.toggle('menu-open') 
-    }, 
-    [
-      createElement('span', { className: 'sr-only' }, 'Переключить меню'),
-      createElement('span', { className: 'burger-icon' }, '')
-    ]
-  );
+  // Кнопки действий в шапке
+  const headerButtons = createElement('div', { className: 'header-buttons' }, [
+    createElement('a', { 
+      href: '/profile',
+      className: 'header-btn header-btn-dark'
+    }, 'Кабинет →'),
+    createElement('a', { 
+      href: '/play',
+      className: 'header-btn header-btn-primary'
+    }, [
+      'Начать игру ',
+      createElement('span', { className: 'download-icon' }, '↓')
+    ])
+  ]);
   
   // Создаем элемент шапки
-  const header = createElement('header', 
-    { 
-      className: 'site-header',
-      style: {
-        margin: '20px',
-        padding: '15px 30px',
-        borderRadius: '15px',
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }
-    }, 
-    [
-      createElement('div', { className: 'header-container' }, [
-        logo,
-        nav,
-        mobileNavButton
-      ])
-    ]
-  );
+  const header = createElement('header', { className: 'site-header' }, [
+    createElement('div', { className: 'header-container' }, [
+      logo,
+      nav,
+      headerButtons
+    ])
+  ]);
+  
+  // Инициализация переменных для отслеживания скролла
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+  
+  // Функция обработки скролла
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > lastScrollY) {
+      // Скролл вниз - скрываем шапку
+      header.style.transform = 'translate(-50%, -150%)';
+    } else {
+      // Скролл вверх - показываем шапку
+      header.style.transform = 'translateX(-50%)';
+    }
+    
+    lastScrollY = currentScrollY;
+    ticking = false;
+  };
+  
+  // Добавляем слушатель события скролла
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(handleScroll);
+      ticking = true;
+    }
+  });
   
   return header;
 } 

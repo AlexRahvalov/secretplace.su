@@ -3,9 +3,9 @@
 /* --- Переменные --- */
 :root {
   /* Цвета */
-  --color-primary: #3f51b5;
+  --color-primary: #ff4057;
   --color-secondary: #ff9800;
-  --color-accent: #e91e63;
+  --color-accent: #ff4057;
   --color-background: #121212;
   --color-surface: #1e1e1e;
   --color-text: #f5f5f5;
@@ -44,17 +44,13 @@ body {
   line-height: 1.6;
   color: var(--color-text);
   background-color: var(--color-background);
-  background-image: url('/src/assets/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
   min-height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-text);
   text-decoration: none;
   transition: color var(--transition-speed) var(--transition-function);
 }
@@ -97,68 +93,59 @@ button {
   border: 0;
 }
 
-/* --- Кнопки --- */
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
-  border-radius: 4px;
-  transition: all var(--transition-speed) var(--transition-function);
-  border: none;
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #303f9f;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: var(--color-secondary);
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #f57c00;
-  color: white;
-}
-
 /* --- Основная структура --- */
 #app {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
+  padding-top: 0;
 }
 
 .main-content {
   flex: 1;
   padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 /* --- Header --- */
 .site-header {
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: var(--container-max-width);
+  z-index: 1000;
+  background-color: rgba(80, 80, 80, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 15px 30px;
+  transition: transform 0.3s ease;
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
   color: white;
   text-decoration: none;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
 .main-nav {
@@ -167,39 +154,157 @@ button {
 
 .nav-list {
   display: flex;
+  gap: 30px;
 }
 
 .nav-item {
-  margin-left: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .nav-link {
   color: white;
+  text-decoration: none;
   font-weight: 500;
-  position: relative;
+  padding: 5px 0;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--color-accent);
-  transition: width var(--transition-speed) var(--transition-function);
+.header-buttons {
+  display: flex;
+  gap: 15px;
 }
 
-.nav-link:hover::after {
-  width: 100%;
+.header-btn {
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.mobile-nav-toggle {
-  display: none;
-  background: transparent;
-  border: none;
+.header-btn-dark {
+  background-color: #000000;
   color: white;
-  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.header-btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.download-icon {
+  margin-left: 5px;
+}
+
+/* --- Hero секция --- */
+.hero-section {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.hero-content {
+  text-align: center;
+  color: #ffffff;
+  z-index: 1;
+  padding: 0 20px;
+  max-width: 900px;
+}
+
+.hero-title {
+  font-size: 5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-subtitle {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #e0354a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 64, 87, 0.4);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.home-page {
+  padding-top: 100vh;
 }
 
 /* --- Footer --- */
@@ -286,31 +391,6 @@ button {
 }
 
 /* --- Главная страница --- */
-.hero-section {
-  padding: 80px 0;
-  text-align: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 15px;
-  margin-bottom: 40px;
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: var(--color-text-secondary);
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
 .features-section,
 .server-info-section,
 .news-section {
