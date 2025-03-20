@@ -88,7 +88,8 @@
     <p>Для входа на сайт SecretPlace.su вы можете использовать свой аккаунт Telegram.</p>
     
     <div id="telegram-widget-container">
-      <!-- Telegram Login Widget будет вставлен сюда -->
+      <!-- Telegram Login Widget -->
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="SecretPlcBot" data-size="large" data-radius="8" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
     </div>
     
     <div id="success-message" class="message success">
@@ -103,43 +104,14 @@
   </div>
   
   <script>
-    // Получаем имя бота с сервера
-    fetch('/api/auth/telegram/info')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.botUsername) {
-          initTelegramLoginWidget(data.botUsername);
-        } else {
-          showError('Не удалось загрузить Telegram виджет');
-        }
-      })
-      .catch(error => {
-        showError('Ошибка загрузки данных для Telegram виджета');
-      });
-    
-    // Инициализируем виджет Telegram
-    function initTelegramLoginWidget(botUsername) {
-      const container = document.getElementById('telegram-widget-container');
-      
-      // Создаем скрипт виджета
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = 'https://telegram.org/js/telegram-widget.js?22';
-      script.setAttribute('data-telegram-login', botUsername);
-      script.setAttribute('data-size', 'large');
-      script.setAttribute('data-radius', '8');
-      script.setAttribute('data-request-access', 'write');
-      script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-      
-      container.appendChild(script);
-    }
-    
     // Функция авторизации через Telegram
     function onTelegramAuth(user) {
       if (!user || !user.id) {
         showError('Ошибка при получении данных пользователя');
         return;
       }
+      
+      console.log('Получены данные пользователя Telegram:', user);
       
       // Отправляем данные на сервер для авторизации
       fetch('/api/auth/telegram/widget-login', {
@@ -181,6 +153,7 @@
       })
       .catch(error => {
         showError('Ошибка соединения с сервером');
+        console.error('Ошибка запроса:', error);
       });
     }
     
