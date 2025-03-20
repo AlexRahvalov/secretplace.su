@@ -1,17 +1,23 @@
 {
-  "name": "secretplace-client",
-  "version": "0.0.3.1",
-  "description": "Клиентская часть сайта SecretPlace.su",
+  "name": "client",
+  "version": "0.0.3.0",
+  "description": "Клиентская часть сайта для Minecraft сервера SecretPlace.su",
   "type": "module",
-  "private": true,
+  "main": "src/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "AlexRahvalov",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexRahvalov/secretplace.su"
+  },
   "devDependencies": {
-    "vite": "^5.0.8"
+    "vite": "^6.2.2"
   }
 }

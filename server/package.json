@@ -1,7 +1,7 @@
 {
-  "name": "secretplace-server",
-  "version": "0.0.3.1",
-  "description": "Серверная часть сайта SecretPlace.su",
+  "name": "server",
+  "version": "0.0.3.0",
+  "description": "Серверная часть сайта для Minecraft сервера SecretPlace.su",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -17,13 +17,13 @@
     "url": "https://github.com/AlexRahvalov/secretplace.su"
   },
   "dependencies": {
-    "argon2": "^0.40.1",
-    "dotenv": "^16.4.5",
-    "mariadb": "^3.2.3",
-    "node-telegram-bot-api": "^0.65.0",
+    "argon2": "^0.41.1",
+    "dotenv": "^16.4.7",
+    "mariadb": "^3.4.0",
+    "node-telegram-bot-api": "^0.66.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.9"
   }
 }
