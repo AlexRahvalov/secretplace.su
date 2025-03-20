@@ -19,7 +19,7 @@
     "server",
     "website"
   ],
-  "author": "",
+  "author": "AlexRahvalov",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
