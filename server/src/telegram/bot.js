@@ -1,4 +1,4 @@
-const TelegramBot = require('node-telegram-bot-api');
+const { Bot } = require('grammy');
 const telegramAuthModel = require('../models/telegramAuthModel');
 const authManager = require('../auth/AuthManager');
 
@@ -19,13 +19,16 @@ function initBot() {
   }
 
   try {
-    // Создаем бота с опцией polling
-    bot = new TelegramBot(token, { polling: true });
-    
-    console.log('Telegram бот успешно запущен');
+    // Создаем бота
+    bot = new Bot(token);
     
     // Настраиваем обработчики сообщений
     setupMessageHandlers();
+    
+    // Запускаем бота в режиме long polling
+    bot.start();
+    
+    console.log('Telegram бот успешно запущен');
     
     return true;
   } catch (error) {
@@ -39,10 +42,8 @@ function initBot() {
  */
 function setupMessageHandlers() {
   // Обработка команды /start
-  bot.onText(/\/start/, async (msg) => {
-    const chatId = msg.chat.id;
-    
-    bot.sendMessage(chatId, 
+  bot.command('start', async (ctx) => {
+    await ctx.reply(
       'Привет! Я бот для авторизации на сервере SecretPlace.su.\n\n' +
       'Используйте /login для входа на сайт\n' +
       'Используйте /bind <код> для привязки аккаунта'
@@ -50,28 +51,28 @@ function setupMessageHandlers() {
   });
   
   // Обработка команды /login
-  bot.onText(/\/login/, async (msg) => {
-    const chatId = msg.chat.id;
-    const telegramId = msg.from.id;
+  bot.command('login', async (ctx) => {
+    const chatId = ctx.chat.id;
+    const telegramId = ctx.from.id;
     
     try {
       // Получаем адаптер для Telegram авторизации
       const telegramAdapter = authManager.getAdapterByName('TelegramAuth');
       
       if (!telegramAdapter) {
-        return bot.sendMessage(chatId, 'Авторизация через Telegram в данный момент недоступна');
+        return ctx.reply('Авторизация через Telegram в данный момент недоступна');
       }
       
       // Пытаемся авторизоваться по Telegram ID
       const user = await telegramAdapter.authenticateByTelegramId(telegramId);
       
       if (user) {
-        bot.sendMessage(chatId, 
+        await ctx.reply(
           `✅ Успешный вход!\n\nИмя: ${user.displayName}\nЛогин: ${user.username}\n\n` +
           'Теперь вы можете использовать сайт.'
         );
       } else {
-        bot.sendMessage(chatId, 
+        await ctx.reply(
           'Ваш Telegram аккаунт не привязан к учетной записи на сайте.\n\n' +
           'Чтобы привязать аккаунт, выполните следующие шаги:\n' +
           '1. Войдите на сайт с помощью логина и пароля\n' +
@@ -81,52 +82,54 @@ function setupMessageHandlers() {
       }
     } catch (error) {
       console.error('Ошибка при авторизации через Telegram:', error);
-      bot.sendMessage(chatId, 'Произошла ошибка при авторизации. Пожалуйста, попробуйте позже.');
+      await ctx.reply('Произошла ошибка при авторизации. Пожалуйста, попробуйте позже.');
     }
   });
   
-  // Обработка команды /bind <код>
-  bot.onText(/\/bind (.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const telegramId = msg.from.id;
-    const code = match[1].trim();
+  // Обработка команды /bind с параметром
+  bot.command('bind', async (ctx) => {
+    const chatId = ctx.chat.id;
+    const telegramId = ctx.from.id;
+    const code = ctx.match ? ctx.match : '';
+    
+    if (!code) {
+      return await ctx.reply('Пожалуйста, укажите код привязки после команды /bind');
+    }
     
     try {
       // Проверяем код и привязываем Telegram
       const result = await telegramAuthModel.linkTelegramAccount(code, telegramId);
       
       if (result.success) {
-        bot.sendMessage(chatId, 
+        await ctx.reply(
           `✅ Аккаунт успешно привязан!\n\nИмя: ${result.user.displayName}\nЛогин: ${result.user.username}\n\n` +
           'Теперь вы можете использовать команду /login для входа.'
         );
       } else {
-        bot.sendMessage(chatId, 
+        await ctx.reply(
           '❌ Неверный или устаревший код привязки.\n\n' +
           'Пожалуйста, убедитесь, что вы ввели правильный код, или получите новый на сайте.'
         );
       }
     } catch (error) {
       console.error('Ошибка при привязке Telegram аккаунта:', error);
-      bot.sendMessage(chatId, 'Произошла ошибка при привязке аккаунта. Пожалуйста, попробуйте позже.');
+      await ctx.reply('Произошла ошибка при привязке аккаунта. Пожалуйста, попробуйте позже.');
     }
   });
   
   // Обработка всех остальных сообщений
-  bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
-    
+  bot.on('message', async (ctx) => {
     // Игнорируем команды, которые уже обработаны
-    if (msg.text && (
-      msg.text.startsWith('/start') || 
-      msg.text.startsWith('/login') || 
-      msg.text.startsWith('/bind')
+    if (ctx.message.text && (
+      ctx.message.text.startsWith('/start') || 
+      ctx.message.text.startsWith('/login') || 
+      ctx.message.text.startsWith('/bind')
     )) {
       return;
     }
     
     // Отправляем справку по командам
-    bot.sendMessage(chatId, 
+    await ctx.reply(
       'Доступные команды:\n\n' +
       '/start - Начать работу с ботом\n' +
       '/login - Войти на сайт через Telegram\n' +
@@ -148,7 +151,7 @@ async function sendMessage(chatId, message) {
   }
   
   try {
-    return await bot.sendMessage(chatId, message);
+    return await bot.api.sendMessage(chatId, message);
   } catch (error) {
     console.error('Ошибка при отправке сообщения в Telegram:', error);
     return null;
@@ -167,9 +170,12 @@ async function generateAuthQrCode(telegramId) {
   }
   
   try {
+    // Получаем информацию о боте
+    const botInfo = await bot.api.getMe();
+    
     // Здесь можно добавить логику для генерации QR-кода
     // с данными для авторизации
-    return `tg://resolve?domain=${bot.botInfo.username}&start=auth_${telegramId}`;
+    return `tg://resolve?domain=${botInfo.username}&start=auth_${telegramId}`;
   } catch (error) {
     console.error('Ошибка при генерации QR-кода для Telegram:', error);
     return null;
