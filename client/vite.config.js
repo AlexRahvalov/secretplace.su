@@ -15,6 +15,11 @@ export default defineConfig({
     strictPort: true,
     open: true,
     host: true,
+    hmr: {
+      protocol: 'wss',
+      host: 'secretplace.su',
+      clientPort: 443
+    },
     allowedHosts: ['secretplace.su'],
     proxy: {
       '/api': {

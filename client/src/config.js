@@ -1,10 +1,10 @@
 // Конфигурация клиентского приложения
 
 // URL API сервера
-export const API_URL = process.env.API_URL || 'http://localhost:3001/api';
+export const API_URL = import.meta.env.PROD ? 'https://secretplace.su/api' : '/api';
 
 // Настройки дебага
-export const DEBUG = process.env.DEBUG === 'true' || false;
+export const DEBUG = import.meta.env.DEV;
 
 // Настройки приложения
 export const APP_CONFIG = {
