@@ -1,4 +1,5 @@
 // main.js - Точка входа в приложение
+import { APP_CONFIG } from './config.js';
 import { createRouter } from './utils/router.js';
 import { renderApp } from './utils/dom.js';
 import { getVersion } from './services/appService.js';
@@ -25,17 +26,17 @@ async function initApp() {
   
   // Рендерим приложение
   renderApp({
-    header: Header(),
+    header: Header({ title: APP_CONFIG.siteName }),
     content: router.getCurrentView(),
-    footer: Footer({ version })
+    footer: Footer({ version, social: APP_CONFIG.social })
   });
   
   // Слушаем изменения маршрута
   window.addEventListener('popstate', () => {
     renderApp({
-      header: Header(),
+      header: Header({ title: APP_CONFIG.siteName }),
       content: router.getCurrentView(),
-      footer: Footer({ version })
+      footer: Footer({ version, social: APP_CONFIG.social })
     });
   });
 }

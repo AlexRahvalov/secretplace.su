@@ -1,64 +1,99 @@
 // authService.js - Сервис для работы с авторизацией
+import { API_URL } from '../config.js';
 
 /**
- * Авторизует пользователя на сервере
- * @param {string} username - Имя пользователя
- * @param {string} password - Пароль
- * @returns {Promise<Object>} Данные пользователя
+ * Получить информацию о системе аутентификации
+ * @returns {Promise<Object>} Информация о доступных методах аутентификации
  */
-export async function login(username, password) {
+export async function getAuthInfo() {
   try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
-    
+    const response = await fetch(`${API_URL}/auth/info`);
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка авторизации');
+      throw new Error('Не удалось получить информацию о системе аутентификации');
     }
-    
-    const userData = await response.json();
-    
-    // Сохраняем данные пользователя в localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-    
-    return userData;
+    return await response.json();
   } catch (error) {
+    console.error('Ошибка при получении информации о системе аутентификации:', error);
     throw error;
   }
 }
 
 /**
- * Авторизует пользователя через Telegram
- * @param {number} telegramId - ID пользователя в Telegram
- * @returns {Promise<Object>} Данные пользователя
+ * Вход через логин и пароль
+ * @param {string} username - Имя пользователя
+ * @param {string} password - Пароль
+ * @returns {Promise<Object>} Информация о пользователе
  */
-export async function loginWithTelegram(telegramId) {
+export async function login(username, password) {
   try {
-    const response = await fetch('/api/auth/telegram/login', {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ telegramId })
+      body: JSON.stringify({ username, password }),
+      credentials: 'include'
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка авторизации через Telegram');
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка авторизации');
     }
     
-    const userData = await response.json();
-    
-    // Сохраняем данные пользователя в localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-    
-    return userData;
+    return await response.json();
   } catch (error) {
+    console.error('Ошибка при авторизации:', error);
+    throw error;
+  }
+}
+
+/**
+ * Вход через Telegram
+ * @param {Object} telegramData - Данные аутентификации Telegram
+ * @returns {Promise<Object>} Информация о пользователе
+ */
+export async function loginWithTelegram(telegramData) {
+  try {
+    const response = await fetch(`${API_URL}/auth/telegram`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(telegramData),
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка авторизации через Telegram');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Ошибка при авторизации через Telegram:', error);
+    throw error;
+  }
+}
+
+/**
+ * Выход из аккаунта
+ * @returns {Promise<Object>} Результат выхода
+ */
+export async function logout() {
+  try {
+    const response = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка при выходе из аккаунта');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Ошибка при выходе из аккаунта:', error);
     throw error;
   }
 }
@@ -165,14 +200,6 @@ export async function bindTelegramWithWidget(telegramData, username, password) {
 }
 
 /**
- * Выход пользователя из системы
- */
-export function logout() {
-  // Удаляем данные пользователя из localStorage
-  localStorage.removeItem('user');
-}
-
-/**
  * Получает текущего авторизованного пользователя
  * @returns {Object|null} Данные пользователя или null, если пользователь не авторизован
  */
@@ -191,34 +218,4 @@ export function getCurrentUser() {
  */
 export function isAuthenticated() {
   return !!getCurrentUser();
-}
-
-/**
- * Получает информацию о системе авторизации
- * @returns {Promise<Object>} Информация о системе авторизации
- */
-export async function getAuthInfo() {
-  try {
-    const response = await fetch('/api/auth/info');
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Не удалось получить информацию об авторизации');
-    }
-    
-    const data = await response.json();
-    
-    // Убедимся, что поле telegramEnabled существует
-    if (data.telegramEnabled === undefined) {
-      data.telegramEnabled = false;
-    }
-    
-    return data;
-  } catch (error) {
-    return { 
-      activeAdapter: 'Неизвестно', 
-      availableAdapters: [],
-      telegramEnabled: false
-    };
-  }
 } 
