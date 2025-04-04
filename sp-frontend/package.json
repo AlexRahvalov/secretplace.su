@@ -1,0 +1,36 @@
+{
+  "name": "sp-client",
+  "module": "index.js",
+  "type": "module",
+  "version": "0.0.0-alfa",
+  "author": "AlexRahvalov",
+  "contributors": [
+    "Claude AI (Anthropic)"
+  ],
+  "scripts": {
+    "start": "bun run index.js",
+    "dev": "bun --watch index.js",
+    "client": "vite",
+    "client:dev": "vite --mode development",
+    "client:build": "vite build",
+    "client:preview": "vite preview",
+    "clean": "rimraf dist",
+    "build": "bun run clean && bun run client:build"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "dotenv": "^16.4.7",
+    "rimraf": "^6.0.1",
+    "vite": "^6.2.2",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

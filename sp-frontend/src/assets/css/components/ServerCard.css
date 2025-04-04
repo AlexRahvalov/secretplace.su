@@ -1,0 +1,384 @@
+/* Стили для карточек серверов */
+
+/* Анимация появления сетки серверов */
+.server-grid.animate-in .server-card {
+  animation: card-fade-in 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes card-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Всплывающая подсказка для статуса */
+.status-tooltip {
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(5px);
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.status-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  transform: translateY(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.status-indicator-dot:hover .status-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+}
+
+/* Улучшенная версия hover-эффекта */
+.server-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+/* Дополнительные эффекты */
+.server-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.server-card:hover::after {
+  opacity: 1;
+}
+
+/* Стиль для пустого сервера (когда нет игроков) */
+.players-count.empty {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Анимация для изменений */
+.stat-value.changed,
+.players-count.changed {
+  position: relative;
+}
+
+.players-count.changed .player-count-text {
+  animation: pulse-count 0.5s ease-in-out;
+}
+
+.players-count.changed::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.4) 0%, rgba(76, 175, 80, 0) 70%);
+  animation: fade-out 2s ease-out;
+  border-radius: 10px;
+  z-index: -1;
+}
+
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes pulse-count {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Новая информационная строка */
+.server-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Улучшенный стиль имени сервера */
+.server-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+  padding-right: 20px;
+  letter-spacing: 0.5px;
+  text-align: left;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
+}
+
+/* Улучшение стиля счетчика игроков */
+.players-count {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  position: relative;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.players-count:hover {
+  transform: translateY(-1px);
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.5);
+}
+
+.player-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.95;
+}
+
+/* Улучшение версии сервера */
+.server-version {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #bb6bce;
+  font-family: monospace;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px rgba(155, 39, 176, 0.4);
+  background: rgba(155, 39, 176, 0.08);
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.server-version:hover {
+  transform: translateY(-1px);
+  text-shadow: 0 0 12px rgba(155, 39, 176, 0.6);
+  background: rgba(155, 39, 176, 0.12);
+}
+
+.version-icon {
+  margin-right: 5px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Стили для IP сервера */
+.server-ip-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), rgba(30, 30, 35, 0.3));
+  border-radius: 8px;
+  margin-top: auto;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid rgba(255, 70, 85, 0.1);
+}
+
+.server-ip-container:hover {
+  background: linear-gradient(90deg, rgba(30, 30, 35, 0.4), rgba(40, 40, 45, 0.4));
+  border-color: rgba(255, 70, 85, 0.3);
+  box-shadow: 0 0 10px rgba(255, 70, 85, 0.2);
+  transform: translateY(-2px);
+}
+
+.server-ip-container:active {
+  transform: scale(0.97);
+}
+
+.server-ip {
+  color: #FF4655;
+  font-size: 15px;
+  font-family: monospace;
+  margin-right: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 5px rgba(255, 70, 85, 0.3);
+}
+
+.copy-icon {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.copy-toast {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  animation: fadeInOut 2s ease;
+  pointer-events: none;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, 5px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -5px); }
+}
+
+/* Обертка для индикатора заполненности */
+.player-bar-wrapper {
+  position: relative;
+  height: 3px;
+  margin-top: auto;
+}
+
+/* Индикатор заполненности сервера */
+.player-bar-container {
+  width: 100%;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 1.5px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.player-bar {
+  height: 100%;
+  border-radius: 1.5px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+/* Дополнительный эффект при наведении на карточку */
+.server-card:hover .player-bar {
+  animation: pulse-bar 1.5s infinite;
+}
+
+@keyframes pulse-bar {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+/* Общий стиль карточки */
+.server-card {
+  position: relative;
+  background: linear-gradient(160deg, rgba(30, 30, 40, 0.85) 0%, rgba(20, 20, 25, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+/* Индикатор статуса (зеленая точка) */
+.status-indicator-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+  z-index: 2;
+}
+
+.status-indicator-dot::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  z-index: 1;
+}
+
+.status-indicator-dot.online {
+  background-color: #4CAF50;
+  animation: pulse-green 2s infinite;
+}
+
+.status-indicator-dot.offline {
+  background-color: #FF4655;
+  box-shadow: 0 0 8px rgba(255, 70, 85, 0.5);
+  animation: none;
+}
+
+.status-indicator-dot.offline::before {
+  border-color: rgba(255, 70, 85, 0.3);
+}
+
+/* Упрощенная структура информации о сервере */
+.server-info-minimal {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  margin-top: 5px;
+}
+
+/* Фон для карточки */
+.server-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.03)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: repeat;
+  opacity: 0.4;
+  z-index: 0;
+} 

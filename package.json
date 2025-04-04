@@ -1,0 +1,23 @@
+{
+  "name": "secretplace.su-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "sp-frontend",
+    "sp-backend"
+  ],
+  "scripts": {
+    "start:backend": "cd sp-backend && bun run dev",
+    "start:frontend": "cd sp-frontend && bun run client:dev",
+    "install:all": "bun install",
+    "build:all": "bun run build:backend && bun run build:frontend",
+    "build:backend": "cd sp-backend && bun run build",
+    "build:frontend": "cd sp-frontend && bun run build"
+  },
+  "author": "AlexRahvalov",
+  "license": "ISC",
+  "engines": {
+    "bun": ">=1.2.8",
+    "node": ">=18"
+  }
+} 

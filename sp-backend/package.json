@@ -1,0 +1,52 @@
+{
+  "name": "secretplace.su",
+  "version": "0.3.0-beta",
+  "description": "Сайт для Minecraft сервера SecretPlace.su",
+  "author": "AlexRahvalov",
+  "contributors": [
+    "Claude AI (Anthropic)"
+  ],
+  "scripts": {
+    "start": "bun index.ts",
+    "dev": "bun --watch index.ts",
+    "init-db": "bun scripts/init-database.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexRahvalov/secretplace.su"
+  },
+  "keywords": [
+    "minecraft",
+    "server",
+    "website"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.14.0",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mariadb": "^3.4.1",
+    "minecraft-protocol": "^1.55.0",
+    "minecraft-server-util": "^5.4.4"
+  },
+  "engines": {
+    "bun": ">=1.2.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "private": true,
+  "module": "index.ts",
+  "type": "module"
+}
